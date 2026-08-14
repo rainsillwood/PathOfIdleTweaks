@@ -1,0 +1,14 @@
+# .NET 构建产物
+bin/
+obj/
+
+# IDE 与用户本地设置
+.vs/
+.idea/
+*.user
+*.suo
+*.DotSettings.user
+
+# BepInEx/游戏运行日志与临时文件
+*.log
+*.tmp
