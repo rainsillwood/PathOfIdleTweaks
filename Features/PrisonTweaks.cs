@@ -36,11 +36,16 @@ internal static class EnsurePrisonDistortQualityActuallyUpgradedPatch
             return;
 
         var expectedQuality = __state + 1;
+        var qualityBeforeCorrection = saveHeroData.quality;
 
         // 使用游戏原生品质变更流程，以同步重算人物属性和品质表数据。
         // 正常只需一次；循环同时兜底原判定已经失败并导致品质降低的情况。
         for (var attempt = 0; saveHeroData.quality < expectedQuality && attempt < 32; attempt++)
             heroData.ChangeQuality(100f);
+
+        // 原游戏的刷新事件发生在本补丁之前；若这里修正了品质，需要再次通知界面读取最新数据。
+        if (saveHeroData.quality != qualityBeforeCorrection)
+            Game.eventMgr?.sendEvent((EEvent)130, heroData);
 
         if (saveHeroData.quality < expectedQuality)
         {
