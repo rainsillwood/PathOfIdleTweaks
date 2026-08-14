@@ -2,6 +2,8 @@ using HarmonyLib;
 
 namespace PathOfIdleTweaks.Features;
 
+#if false // 已停用：改为在监牢生成囚犯时直接创建完整的最高品级人物。
+
 // 监牢扭曲界面和实际品质提升判定都会读取这个概率。
 [HarmonyPatch(typeof(PriDistortData), nameof(PriDistortData.GetDistortQualityUpRate))]
 internal static class GuaranteePrisonDistortQualityUpgradePatch
@@ -55,3 +57,4 @@ internal static class EnsurePrisonDistortQualityActuallyUpgradedPatch
         }
     }
 }
+#endif
