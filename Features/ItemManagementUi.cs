@@ -8,7 +8,7 @@ namespace PathOfIdleTweaks.Features;
 [HarmonyPatch(typeof(Root), "Update")]
 internal static class ToggleNativeItemManagementUiPatch
 {
-    private const KeyCode ToggleKey = KeyCode.F8;
+    private const KeyCode ToggleKey = KeyCode.F6;
 
     private static void Postfix()
     {
