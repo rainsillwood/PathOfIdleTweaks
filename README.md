@@ -1,6 +1,6 @@
 # PathOfIdleTweaks
 
-《Path of Idle》的非官方 BepInEx IL2CPP Mod，提供装备强化、监牢囚犯品质调整和原生物品管理调试界面。
+《Path of Idle》的非官方 BepInEx IL2CPP Mod，提供装备强化和监牢囚犯品质调整。
 
 > [!WARNING]
 > 使用 Mod 前请备份存档。本项目会修改游戏运行时数据，其中部分修改可能随游戏存档永久保存。游戏更新后，补丁也可能失效或产生兼容性问题。
@@ -20,13 +20,9 @@
 - 人物属性、天赋和初始装备会按照该品级走游戏原生创建流程。
 - 旧版“扭曲囚犯时 100% 提升品质”代码已经停用。
 
-### 原生物品管理界面
+### 开发者调试界面
 
-- 按 `F6` 打开或关闭游戏内置的 `DebugLayer`。
-- 可以使用其中的装备、套装、宝箱、符文、材料和奇物等物品发放控件。
-
-> [!CAUTION]
-> `DebugLayer` 是游戏开发调试界面，不是专门为本 Mod 制作的安全菜单。不要点击与物品管理无关的地图、进度、关卡等调试按钮，否则可能造成存档进度异常甚至游戏报错。
+该功能已迁移到独立项目 `PathOfIdleDeveloperTools`，本 Mod 不再响应 `F6`。
 
 ## 运行环境
 
@@ -79,7 +75,6 @@ bin\Release\net6.0\PathOfIdleTweaks.dll
 Features/
   EquipmentTweaks.cs       装备词条与装备箱等级调整
   PrisonRefreshTweaks.cs   监牢刷新囚犯品质调整
-  ItemManagementUi.cs      F6 原生调试界面入口
 Plugin.cs                   BepInEx 插件入口
 ```
 
