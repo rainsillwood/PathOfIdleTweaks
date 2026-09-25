@@ -13,7 +13,7 @@
       https://nuget.samboy.dev/v3/index.json
     </RestoreAdditionalProjectSources>
     <RootNamespace>PathOfIdleTweaks</RootNamespace>
-    <PathOfIdleGameDir Condition="'$(PathOfIdleGameDir)' == ''">D:\app\Steam\steamapps\common\PathOfIdle</PathOfIdleGameDir>
+    <PathOfIdleGameDir Condition="'$(PathOfIdleGameDir)' == ''">F:\SteamLibrary\steamapps\common\PathOfIdle</PathOfIdleGameDir>
   </PropertyGroup>
 
   <ItemGroup>

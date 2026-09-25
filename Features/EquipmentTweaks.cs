@@ -1,4 +1,5 @@
 using HarmonyLib;
+using System;
 
 namespace PathOfIdleTweaks.Features;
 
@@ -10,11 +11,13 @@ internal static class EquipmentTweaks
     // 使用游戏自身的 LevelUp 流程升级，避免只改 level 字段而遗漏内部状态。
     internal static int MaximizeAffixes(SaveItemData saveItemData)
     {
-        if (saveItemData?.affixList == null)
+        if (saveItemData?.affixList == null||
+            Plugin.configEquipmentSuffixQuality.Value == false)
             return 0;
 
         var changed = 0;
-
+        //限制词条等级不超过装备等级的十分之一，避免出现不合理的高词条。
+        var acceptLevel = Plugin.configEquipmentSuffixQuality.Value ? MaximumAffixLevel : saveItemData.GetBaseAffixLevelCap();
         for (var i = 0; i < saveItemData.affixList.Count; i++)
         {
             var affix = saveItemData.affixList[i];
@@ -23,7 +26,7 @@ internal static class EquipmentTweaks
 
             var originalLevel = affix.level;
 
-            while (affix.level < MaximumAffixLevel)
+            while (affix.level < acceptLevel)
                 affix.LevelUp();
 
             if (affix.level != originalLevel)
@@ -34,7 +37,7 @@ internal static class EquipmentTweaks
     }
 }
 
-// 游戏初始化装备箱随机池后，仅将等级池替换成当前区间的合法最高值。
+// 游戏初始化装备箱随机池后，仅将等级池替换成当前区间的合法最高值。已弃用，改为在 SaveItemData 初始化时直接提升词条等级。
 [HarmonyPatch(typeof(ItemToolData), "InitEquipBoxWeight")]
 internal static class MaximizeEquipmentBoxLevelPatch
 {
@@ -55,12 +58,14 @@ internal static class MaximizeEquipmentBoxLevelPatch
     }
 }
 
-// 新装备生成完成后，把该装备的所有词条等级提升到 9。
+// 新装备生成完成后，把该装备的所有词条等级提升到最高。
 [HarmonyPatch(typeof(SaveItemData), nameof(SaveItemData.InitEquip))]
 internal static class MaximizeNewEquipmentAffixesPatch
 {
     private static void Postfix(SaveItemData __instance)
     {
+        if (Plugin.configEquipmentNewSuffixQuality.Value == false) return;
+
         var changed = EquipmentTweaks.MaximizeAffixes(__instance);
 
         if (changed > 0)
@@ -78,6 +83,8 @@ internal static class MaximizeLoadedEquipmentAffixesPatch
 {
     private static void Prefix(ItemEquipData __instance)
     {
+        if (Plugin.configEquipmentExistSuffixQuality.Value == false) return;
+
         var saveItemData = __instance?.itemData?.saveItemData;
         var changed = EquipmentTweaks.MaximizeAffixes(saveItemData);
 
