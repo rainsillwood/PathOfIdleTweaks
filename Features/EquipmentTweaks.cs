@@ -6,7 +6,8 @@ namespace PathOfIdleTweaks.Features;
 internal static class EquipmentTweaks
 {
     // 装备词条表确认 1～9 为合法等级，9 是最高级。
-    internal const int MaximumAffixLevel = 9;
+    internal static int MaximumAffixLevel = 9;
+    internal static bool EquipmentExistSuffixQuality = Plugin.configEquipmentExistSuffixQuality.Value;
 
     // 使用游戏自身的 LevelUp 流程升级，避免只改 level 字段而遗漏内部状态。
     internal static int MaximizeAffixes(SaveItemData saveItemData)
@@ -15,9 +16,17 @@ internal static class EquipmentTweaks
             Plugin.configEquipmentSuffixQuality.Value == false)
             return 0;
 
-        var changed = 0;
-        //限制词条等级不超过装备等级的十分之一，避免出现不合理的高词条。
-        var acceptLevel = Plugin.configEquipmentSuffixQuality.Value ? MaximumAffixLevel : saveItemData.GetBaseAffixLevelCap();
+        int changed = 0;
+        if (Plugin.configEquipmentSuffixMaxQuality.Value <= 0)
+        {
+            //限制词条等级不超过装备允许的词条等级，避免出现不合理的高词条。
+            MaximumAffixLevel = saveItemData.GetBaseAffixLevelCap();
+        }
+        else
+        {
+            //限制词条等级不超过9。
+            MaximumAffixLevel = Math.Min(9, Plugin.configEquipmentSuffixMaxQuality.Value);
+        }
         for (var i = 0; i < saveItemData.affixList.Count; i++)
         {
             var affix = saveItemData.affixList[i];
@@ -26,7 +35,7 @@ internal static class EquipmentTweaks
 
             var originalLevel = affix.level;
 
-            while (affix.level < acceptLevel)
+            while (affix.level < MaximumAffixLevel)
                 affix.LevelUp();
 
             if (affix.level != originalLevel)
@@ -37,6 +46,7 @@ internal static class EquipmentTweaks
     }
 }
 
+/*
 // 游戏初始化装备箱随机池后，仅将等级池替换成当前区间的合法最高值。已弃用，改为在 SaveItemData 初始化时直接提升词条等级。
 [HarmonyPatch(typeof(ItemToolData), "InitEquipBoxWeight")]
 internal static class MaximizeEquipmentBoxLevelPatch
@@ -57,6 +67,7 @@ internal static class MaximizeEquipmentBoxLevelPatch
             $"Equipment box level roll restricted to its legal maximum: {maximumLevel}.");
     }
 }
+*/
 
 // 新装备生成完成后，把该装备的所有词条等级提升到最高。
 [HarmonyPatch(typeof(SaveItemData), nameof(SaveItemData.InitEquip))]
@@ -83,9 +94,11 @@ internal static class MaximizeLoadedEquipmentAffixesPatch
 {
     private static void Prefix(ItemEquipData __instance)
     {
-        if (Plugin.configEquipmentExistSuffixQuality.Value == false) return;
+        if (EquipmentTweaks.EquipmentExistSuffixQuality == false) return;
 
         var saveItemData = __instance?.itemData?.saveItemData;
+        if (saveItemData == null) return;
+
         var changed = EquipmentTweaks.MaximizeAffixes(saveItemData);
 
         if (changed > 0)

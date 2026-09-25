@@ -10,7 +10,7 @@ internal static class PrisonRefreshQualityContext
     [ThreadStatic]
     internal static int MaximumQuality;
     [ThreadStatic]
-    internal static SaveHouseData SaveHouseData;
+    internal static SaveHouseData SaveHouseData = null!;
     [ThreadStatic]
     internal static int RefreshCountQuality;
     [ThreadStatic]
@@ -25,7 +25,9 @@ internal static class TrackPrisonHeroCreationPatch
     {
         var HouseData = __instance?.houseData;
 
-        PrisonRefreshQualityContext.SaveHouseData = HouseData?.saveHouseData;
+        if (HouseData == null) return;
+
+        PrisonRefreshQualityContext.SaveHouseData = HouseData.saveHouseData;
 
         var maximumQuality = HouseData?.houseAttrData?.GetAttrValue((EHouseAttrType)10250, null) ?? 0f;
         PrisonRefreshQualityContext.MaximumQuality = Math.Max(1, (int)maximumQuality);
@@ -35,7 +37,7 @@ internal static class TrackPrisonHeroCreationPatch
     {
         // 无论原方法是否正常结束，都要清理上下文，避免影响其他来源的人物。
         PrisonRefreshQualityContext.MaximumQuality = 0;
-        PrisonRefreshQualityContext.SaveHouseData = null;
+        PrisonRefreshQualityContext.SaveHouseData = null!;
         return __exception;
     }
 }
