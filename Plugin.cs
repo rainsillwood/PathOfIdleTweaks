@@ -1,4 +1,4 @@
-﻿using BepInEx;
+using BepInEx;
 using BepInEx.Configuration;
 using BepInEx.Logging;
 using BepInEx.Unity.IL2CPP;
@@ -18,6 +18,8 @@ public class Plugin : BasePlugin
     internal static ConfigEntry<int> configEquipmentSuffixMaxQuality = null!;
     internal static ConfigEntry<int> configPrisonMaxQualityCount = null!;
     internal static ConfigEntry<int> configPrisonMaxJobCount = null!;
+    internal static ConfigEntry<bool> configCrystalPityEnabled = null!;
+    internal static ConfigEntry<int> configCrystalPityThreshold = null!;
 
     public override void Load()
     {
@@ -33,6 +35,11 @@ public class Plugin : BasePlugin
         configEquipmentNewSuffixQuality = Config.Bind("装备.词条增强", "修改新装备:", true, "关闭后将不再修改新装备");
         configEquipmentExistSuffixQuality = Config.Bind("装备.词条增强", "修改已有装备:", true, "关闭后将不再修改已有装备,重启后生效");
         configEquipmentSuffixMaxQuality = Config.Bind("装备.词条增强", "固定等级:", 0, "此功能将根据无视装备等级将词条等级强行设定为指定等级,0则关闭此功能,最高为9");
+
+        configCrystalPityEnabled = Config.Bind("血肉结晶.保底升品", "开启功能:", true,
+            "每使用一次血肉结晶(血肉结晶=对当前选中神选者重掷三项主属性)记一次使用次数; 达到阈值后调用原生品质变更流程升一品并清空该角色的次数");
+        configCrystalPityThreshold = Config.Bind("血肉结晶.保底升品", "升品所需次数:", 100,
+            "累计使用多少次血肉结晶后升一品, 最低1; 使用次数按角色(uniqueId)分别记录, 存在 BepInEx/config/PathOfIdleTweaks/CrystalUseCounts.txt");
 
         if (configPrisonMaxQualityCount.Value < 0)
         {
@@ -56,6 +63,12 @@ public class Plugin : BasePlugin
         {
             configEquipmentSuffixMaxQuality.Value = 9;
             Log.LogWarning("固定等级不能大于9，已自动修正为9。");
+        }
+
+        if (configCrystalPityThreshold.Value < 1)
+        {
+            configCrystalPityThreshold.Value = 100;
+            Log.LogWarning("血肉结晶升品所需次数不能小于1，已自动修正为100。");
         }
 
         Log.LogInfo("Path of Idle Tweaks loaded.");

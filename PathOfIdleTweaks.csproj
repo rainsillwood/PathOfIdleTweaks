@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
@@ -14,6 +14,9 @@
       https://nuget.samboy.dev/v3/index.json
     </RestoreAdditionalProjectSources>
     <RootNamespace>PathOfIdleTweaks</RootNamespace>
+    <!-- net6.0 已停止支持；与 BepInEx 6 IL2CPP 运行时保持一致是刻意选择，这里静音 NETSDK1138
+         （与 PathOfIdleEditor / PathOfIdleEditor.App 两个工程保持一致）。 -->
+    <CheckEolTargetFramework>false</CheckEolTargetFramework>
     <PathOfIdleGameDir Condition="'$(PathOfIdleGameDir)' == ''">F:\SteamLibrary\steamapps\common\PathOfIdle</PathOfIdleGameDir>
   </PropertyGroup>
 

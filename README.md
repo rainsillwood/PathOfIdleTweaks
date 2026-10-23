@@ -20,6 +20,22 @@
 - 人物属性、天赋和初始装备会按照该品级走游戏原生创建流程。
 - 旧版“扭曲囚犯时 100% 提升品质”代码已经停用。
 
+### 血肉结晶保底升品
+
+- 每使用一次**血肉结晶**（对当前选中的神选者重掷三项主属性），就给这位神选者记一次使用次数。
+- 累计达到阈值（默认 **100** 次）后，调用游戏原生的品质变更流程（`HeroData.ChangeQuality`，与监牢扭曲升品同一条原生实现）**必定提升一级品质**，并清空该角色的使用次数。
+- 已经处于最高品质时直接清空次数；角色正在冒险时保留次数、等下一次触发。
+- 使用次数**按角色（`saveHeroData.uniqueId`）分别记录**，保存在：
+
+  ```text
+  BepInEx/config/PathOfIdleTweaks/CrystalUseCounts.txt
+  ```
+
+  说明：`SaveHeroData` 没有空闲字段可复用（`costBlood` 被原生扭曲累加、`changeSanityCount` 被理智逻辑占用），
+  所以计数写在插件自己的持久化文件里，不影响存档结构。
+- 配置分组 `血肉结晶.保底升品`：`开启功能`（默认开）、`升品所需次数`（默认 100，最低 1）。
+- 每次计数/升品都会写日志：`[Crystal] 神选者 <uniqueId> 使用次数 n/100`、`[Crystal] … 保底升品成功：品质 x → y`。
+
 ### 开发者调试界面
 
 该功能已迁移到独立项目 `PathOfIdleDeveloperTools`，本 Mod 不再响应 `F6`。
@@ -51,10 +67,22 @@
 
 ## 从源码编译
 
+本项目已加入父目录的 `PathOfIdleEditor.sln`，可以和其他两个工程一起构建：
+
+```powershell
+dotnet build ..\PathOfIdleEditor.sln -c Release
+```
+
+也可以单独构建（在 `PathOfIdleTweaks` 目录下）：
+
+```powershell
+dotnet build -c Release
+```
+
 项目默认从以下目录引用游戏生成的 interop 程序集：
 
 ```text
-D:\app\Steam\steamapps\common\PathOfIdle
+F:\SteamLibrary\steamapps\common\PathOfIdle
 ```
 
 如果游戏安装在其他位置，可在构建时指定 `PathOfIdleGameDir`：
@@ -75,6 +103,7 @@ bin\Release\net6.0\PathOfIdleTweaks.dll
 Features/
   EquipmentTweaks.cs       装备词条与装备箱等级调整
   PrisonRefreshTweaks.cs   监牢刷新囚犯品质调整
+  CrystalTweaks.cs         血肉结晶使用次数与保底升品
 Plugin.cs                   BepInEx 插件入口
 ```
 
