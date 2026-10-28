@@ -13,12 +13,15 @@ public class Plugin : BasePlugin
 {
     internal static new ManualLogSource Log = null!;
     internal static ConfigEntry<bool> configPrisonMaxQuality = null!;
+    internal static ConfigEntry<int> configPrisonMaxQualityCount = null!;
+    internal static ConfigEntry<int> configPrisonMaxJobCount = null!;
     internal static ConfigEntry<bool> configEquipmentSuffixQuality = null!;
     internal static ConfigEntry<bool> configEquipmentNewSuffixQuality = null!;
     internal static ConfigEntry<bool> configEquipmentExistSuffixQuality = null!;
     internal static ConfigEntry<int> configEquipmentSuffixMaxQuality = null!;
-    internal static ConfigEntry<int> configPrisonMaxQualityCount = null!;
-    internal static ConfigEntry<int> configPrisonMaxJobCount = null!;
+    internal static ConfigEntry<bool> configEquipmentAwarenessTweaker = null!;
+    internal static ConfigEntry<string> configEquipmentAwarenessType = null!;
+    internal static ConfigEntry<int> configEquipmentAwarenessMaxLevel = null!;
     internal static ConfigEntry<bool> configItemRegisterEnabled = null!;
     internal static ConfigEntry<float> configOutlandExpectMultiplier = null!;
 
@@ -63,6 +66,23 @@ public class Plugin : BasePlugin
             configEquipmentSuffixMaxQuality.Value = 9;
             Log.LogWarning("固定等级不能大于9，已自动修正为9。");
         }
+        configEquipmentAwarenessTweaker = Config.Bind("装备.感知上限", "开启功能:", false,
+            "此功能修改装备的可封印词条数/感知等级上限。关闭时不注入任何补丁。修改后需重启游戏。");
+        configEquipmentAwarenessType = Config.Bind(new ConfigDefinition("装备.感知上限", "修改模式"), "Origin", 
+            new ConfigDescription(
+                "Origin\t:提高感知等级上限;\n" +
+                "Extra\t:按倍率增加可封词条数,不改等级;\n" +
+                "Max\t:可封词条数=上限,不改等级。修改后需重启游戏。",
+                new AcceptableValueList<string>("Origin", "Extra", "Max")));
+        configEquipmentAwarenessMaxLevel = Config.Bind("装备.感知上限", "感知等级上限:", 16,
+            "设定目标上限（Origin 为等级上限，Extra/Max 为封印词条数目标）");
+        if (configEquipmentAwarenessMaxLevel.Value < 16)
+        {
+            configEquipmentAwarenessMaxLevel.Value = 16;
+            Log.LogWarning("感知等级不能小于16，已自动修正为16。");
+        }
+
+
 
         //Config.Bind("功能", "", false, "");
         configItemRegisterEnabled = Config.Bind("功能.古神之眼", "开启功能:", false,
